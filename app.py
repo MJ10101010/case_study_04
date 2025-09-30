@@ -6,14 +6,9 @@ from models import SurveySubmission, StoredSurveyRecord
 import hashlib
 import json
 from pathlib import Path
+from storage import append_json_line
 
 STORAGE_FILE = Path("survey_submissions.jsonl")
-
-def append_json_line(data: dict):
-    """Append a dictionary as one JSON line in the storage file."""
-    with STORAGE_FILE.open("a", encoding="utf-8") as f:
-        json.dump(data, f)   # data is already JSON-serializable
-        f.write("\n")
 
 
 app = Flask(__name__)
@@ -83,7 +78,7 @@ def submit_survey():
     )
 
     # Store record safely (convert with Pydantic JSON method)
-    append_json_line(json.loads(record.model_dump_json()))  # for Pydantic v2
+    append_json_line(record.dict())  # for Pydantic v2
     # If your env is Pydantic v1: use record.json() instead of model_dump_json()
 
     # Return submission_id as confirmation
